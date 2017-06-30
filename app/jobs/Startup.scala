@@ -8,7 +8,7 @@ import models.services._
 import models.daos._
 
 import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.libs.json._
 import play.api.libs.json.Reads._
@@ -90,6 +90,4 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
   classrooms.tail.foldLeft(classroomService.add(classrooms.head)) { (acc, v) =>
     acc flatMap (classroomService.add(_))
   }
-
 }
-
