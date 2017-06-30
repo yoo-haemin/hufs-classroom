@@ -25,14 +25,6 @@ lazy val root = (project in file("."))
   .configs(GatlingTest)
   .settings(inConfig(GatlingTest)(Defaults.testSettings): _*)
   .settings(
-    name := """play-scala-rest-api-example""",
+    name := """hufs-classroom-finder""",
     scalaSource in GatlingTest := baseDirectory.value / "/gatling/simulation"
-  )
-
-// Documentation for this project:
-//    sbt "project docs" "~ paradox"
-//    open docs/target/paradox/site/index.html
-lazy val docs = (project in file("docs")).enablePlugins(ParadoxPlugin).
-  settings(
-    paradoxProperties += ("download_url" -> "https://example.lightbend.com/v1/download/play-rest-api")
   )
