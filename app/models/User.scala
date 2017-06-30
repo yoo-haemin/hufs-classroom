@@ -4,7 +4,7 @@ import java.time.DayOfWeek
 
 case class User(
   userKey: String,
-  step: Step,
+  step: Step = Step.MainMenuStep,
   building: Option[Building] = None,
   dow: Option[DayOfWeek] = None,
   startTime: Option[Int] = None,

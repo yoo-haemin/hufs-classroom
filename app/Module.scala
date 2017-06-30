@@ -19,7 +19,9 @@ class Module(environment: Environment, configuration: Configuration)
     bind[UserDAO].to[UserDAOImpl]
     bind[UserService].to[UserServiceImpl]
     bind[ClassroomDAO].to[ClassroomDAOImpl]
+    bind[ClassroomService].to[ClassroomServiceImpl]
 
     bind[Startup].asEagerSingleton()
+    bind[QueryBuilder].asEagerSingleton()
   }
 }

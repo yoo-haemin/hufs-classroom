@@ -1,46 +1,65 @@
 package jobs
 
-import javax.inject.{Singleton, Inject}
-import models.services.UserService
-import models.{User, Step}
+import javax.inject.{ Singleton, Inject }
 import play.api.libs.json._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import shared.Global._
-
-import java.time.{ZonedDateTime, ZoneId, DayOfWeek}
+import java.time.{ ZonedDateTime, ZoneId, DayOfWeek }
 import java.time.DayOfWeek._
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import shared.Global._
+import shared.Messages
+import models.services.{ UserService, ClassroomService }
+import models.{ User, Step, Building, Classroom }
+
 @Singleton
-class QueryBuilder @Inject() (userService: UserService) {
+class QueryBuilder @Inject() (userService: UserService, classroomService: ClassroomService) {
   import Step._
 
-  val mainMenuOption = "시간 먼저" :: "건물 먼저" :: Nil
-  val setStartTimeOption = "시작시간 설정" :: "지금부터" :: Nil
-  val setDayOfWeek = "오늘" +: Seq("월", "화", "수", "목", "금").map(_ + "요일")
-  val setStartTime = (9 to 16).map(_.toString + "시")
-  val setEndTime = (1 to 8).map(_.toString + "시간")
-  val setBuilding = "인문관" :: "교수학습개발원" :: "사회과학관" :: "사이버관" :: Nil
+  def build(userKey: String, content: String): Future[Option[JsObject]] = for {
+    user @ User(userKey, step, building, dow, startTime, endTime) <- userService.findByKey(userKey)
+    stepOpt <- nextStep(user, content)
+    msg <- stepOpt map {
+      s => s match {
+        case ExecuteStep =>
+          //Fetch data and add to message
+          classroomService.find(dow.get, startTime.get, endTime.get, building)
+            .map { roomSeq =>
+              roomSeq.groupBy(_.building).foldLeft("") { case (acc, (b, r)) =>
+                acc + b.name + ":\n" + r.map(_.room).reduceLeft(_+_) + "\n\n"
+              }
+            }
 
-  def build(userKey: String, content: String): Future[Option[JsObject]] = {
-    for {
-      user @ User(userKey, step, building, dow, startTime, endTime) <- userService.findByKey(userKey)
-      stepOpt <- updateUser(user, content)
-      step = stepOpt.map { step =>
-        step match {
-          case ExecuteStep =>
-          case _ =>
-        }
+        case _ =>
+          //echo message
+          Future(content + " 선택")
       }
+    } match {
+      case Some(f) => f.map(Some(_))
+      case None => Future.successful(None)
+    }
 
-    } yield responseTemplate(Seq(""))
-  }
+    button = stepOpt map {
+      _ match {
+        case EndTimeStep => EndTimeStep.buttonsWithStart(startTime.get)
+        case s: Step => s.buttons
+        case _ => Seq("ButtonError")
+      }
+    }
 
+  } yield for {
+    btnGet <- button
+    msgGet <- msg
+  } yield responseTemplate(msgGet, btnGet)
+
+
+  //No relation with the OS
   //Updates user using DAO and returns the next step to be performed
-  def updateUser(user: User, content: String): Future[Option[Step]] = user.step match {
+  def nextStep(user: User, content: String): Future[Option[Step]] = user.step match {
     case MainMenuStep =>
-      val step = if (content == TIME_FIRST) Some(StartTimeStep)
-                 else if (content == BUILDING_FIRST) Some(BuildingSelectionStep)
+      val step = if (content == Messages.timeFirst) Some(StartTimeStep)
+                 else if (content == Messages.buildingFirst) Some(BuildingSelectionStep)
                  else None
 
       if (step.isDefined) for {
@@ -50,7 +69,7 @@ class QueryBuilder @Inject() (userService: UserService) {
       else Future(None)
 
     case StartTimeStep =>
-      if (content == NOW) {
+      if (content == Messages.now) {
         val step = Some(EndTimeStep)
         for {
           _ <- userService.updateStep(user.userKey, step.get)
@@ -59,7 +78,7 @@ class QueryBuilder @Inject() (userService: UserService) {
           hour = time.getHour()
           _ <- userService.updateDowStartTime(user.userKey, dow, hour)
         } yield step
-      } else if (content == SET_START_TIME) {
+      } else if (content == Messages.setStartTime) {
         val step = Some(StartDOWStep)
         for {
           _ <- userService.updateStep(user.userKey, step.get)
@@ -70,15 +89,21 @@ class QueryBuilder @Inject() (userService: UserService) {
       val dowRegex = """(월|화|수|목|금)요일""".r
       content match {
         case dowRegex(s) =>
-          val dow = if (s == "월") MONDAY
-                    else if (s == "화") TUESDAY
-                    else if (s == "수") WEDNESDAY
-                    else if (s == "목") THURSDAY
-                    else if (s == "금") FRIDAY
-                    else throw new NoSuchElementException
-          for {
-            _ <- userService.updateDow(user.userKey, dow)
-          } yield Some(StartDOWTimeStep)
+          val dowOpt = if      (s == "월") Some(MONDAY)
+                       else if (s == "화") Some(TUESDAY)
+                       else if (s == "수") Some(WEDNESDAY)
+                       else if (s == "목") Some(THURSDAY)
+                       else if (s == "금") Some(FRIDAY)
+                       else None
+
+          dowOpt.map { dow =>
+            for {
+              _ <- userService.updateDow(user.userKey, dow)
+            } yield StartDOWTimeStep
+          } match {
+            case Some(f) => f.map(Some(_))
+            case None => Future.successful(None)
+          }
         case _ => Future(None)
       }
 
@@ -95,42 +120,34 @@ class QueryBuilder @Inject() (userService: UserService) {
       }
 
     case EndTimeStep =>
-      val endTimeRegex = """(\d\d)시까지""".r
+      val endTimeRegex = """(\d{2})시까지""".r
       content match {
         case endTimeRegex(s) =>
           val time = s.toInt
           if (time < 10 || time >= 18) Future(None)
           else for {
             u <- userService.updateEndTime(user.userKey, time)
-          } yield
+            rooms <- classroomService.find(u.dow.get, u.startTime.get, u.endTime.get, u.building)
+          } yield if (rooms.length > SHOW_LIMIT) Some(BuildingSelectionStep) else Some(ExecuteStep)
       }
 
-    case BuildingSelectionStep => 
+    case BuildingSelectionStep =>
+      Building.fromString(content) match {
+        case None => Future(None)
+        case Some(building) =>
+          Future(Some(user.startTime.fold(StartTimeStep.asInstanceOf[Step])(_ => ExecuteStep)))
+      }
 
-    case _ => ???
+    case ExecuteStep =>
+      content match {
+        case s if s == Messages.changeStartDow => Future(Some(StartDOWStep))
+        case s if s == Messages.changeStartTime => Future(Some(StartDOWTimeStep))
+        case s if s == Messages.changeEndTime => Future(Some(EndTimeStep))
+        case s if s == Messages.changeBuilding => Future(Some(BuildingSelectionStep))
+        case s if s == Messages.finish => Future(Some(MainMenuStep))
+        case _ => Future(None)
+      }
+
+    case _ => Future(None)
   }
-
-
 }
-
-
-/*
- case c if mainMenuOption.exists(_ == c) =>
- val step = if (c == "시간 먼저") StartTimeStep
- else BuildingSelectionStep
- for {
- u <- userService.clearStatus(user.userKey)
- _ <- userService.updateStep(user.userKey, step)
- } yield step
-
- case c if setStartTimeOption.exists(_ == c) =>
-
-
-
- case c if setStartTime.exists(_ == c) =>
- case c if setDayOfWeek.exists(_ == c) =>
- case c if setStartTime.exists(_ == c) =>
- case c if setEndTime.exists(_ == c) =>
- case c if setBuilding.exists(_ == c) =>
-
- */

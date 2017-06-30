@@ -2,7 +2,11 @@ package models
 
 import java.time.DayOfWeek
 
-case class Classroom(building: Building, floor: Int, room: String, freeTime: Map[DayOfWeek, Seq[Int]])
+//Full room number: Building.toString + room
+//Floor is duplicate data, for indexing convenience
+case class Classroom(building: Building, room: String, freeTime: Map[DayOfWeek, Seq[Int]]) {
+  def floor = room.take(1).toInt
+}
 
 object Classroom {
   def getBuildingRoom(room: String): (Building, String) = room match {
@@ -11,8 +15,8 @@ object Classroom {
     case s => Building.fromString(s.head.toString).get -> s.tail
   }
 
-//  def fromRoomTime(room: String, freeTime: Map[DayOfWeek, Seq[Int]]): Classroom = {
-//    val (b, r) = getBuildingRoom(room)
-//    Classroom(b, r, Map.empty[DayOfWeek, Seq[Int]])
-//  }
+  def fromRoomTime(room: String, freeTime: Map[DayOfWeek, Seq[Int]]): Classroom = {
+    val (b, r) = getBuildingRoom(room)
+    Classroom(b, r, freeTime)
+  }
 }

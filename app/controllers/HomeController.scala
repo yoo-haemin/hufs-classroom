@@ -9,7 +9,7 @@ import java.time.{ZonedDateTime, ZoneId}
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.RequestApi
+import models.{RequestApi, Step}
 import models.services.UserService
 import jobs.QueryBuilder
 
@@ -26,7 +26,8 @@ class HomeController @Inject()(
     val nowHour = now.getHour()
     val nowDow = now.getDayOfWeek()
     val canLookupNow = nowHour >= 9 && nowHour < 17 && nowDow.getValue >= 1 && nowDow.getValue <= 5
-    Ok(mainMenu(canLookupNow))
+
+    Ok(keyboardTemplate(Step.MainMenuStep.buttons))
   }
 
   def message = Action.async(playBodyParsers.json) { implicit req =>

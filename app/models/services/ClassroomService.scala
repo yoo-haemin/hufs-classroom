@@ -5,8 +5,11 @@ import java.time.DayOfWeek
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.language.postfixOps
+
+import models._
 
 trait ClassroomService {
-  def find(dow: DayOfWeek)(time: Seq[Int])
+  def add(classroom: Classroom): Future[Classroom]
+
+  def find(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]): Future[Seq[Classroom]]
 }

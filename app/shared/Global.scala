@@ -6,46 +6,19 @@ import models.Building
 object Global {
   final val ZONEID = "Asia/Seoul"
 
-  def responseTemplate(message: String, buttons: Seq[String]) = Json.obj(
-    "message" -> message,
-    "keyboard" -> keyboardTemplate(buttons)
-  )
-
+  val SHOW_LIMIT = 40
 
   def keyboardTemplate(buttons: Seq[String]) = Json.obj(
     "type" -> "buttons",
     "buttons" -> buttons
   )
 
-  //def mainMenu(canLookupNow: Boolean) =
-  //  responseTemplate(
-  //    (if (canLookupNow) Seq() else Seq()))
-
-  //def timeMenu =
-  //  responseTemplate((1 to 9).map(_.toString + "교시"))
-
-  //def buildingMenu =
-  //  responseTemplate(
-  //    Seq("1", "2", "3", "C").map(Building.fromString(_).get.name)
-  //  )
-
-  //def floorMenu(building: Building) =
-  //  responseTemplate(
-  //    building.availableFloor.map(_.toString + " 층").toSeq
-  //  )
-
-  val SHOW_LIMIT = 40
-
-  val TIME_FIRST = "시간 먼저"
-  val BUILDING_FIRST = "건물 먼저"
-
-  val NOW = "지금부터"
-  val SET_START_TIME = "시작시간 설정"
-
-  val START_TIMES = (9 to 16).map(_.toString + "시부터")
-  val END_TIMES = (10 to 17).map(_.toString + "시까지")
-
+  def responseTemplate(message: String, buttons: Seq[String]) = Json.obj(
+    "message" -> message,
+    "keyboard" -> keyboardTemplate(buttons)
+  )
 }
+
 /*
  "1202" -> (Building.fromString("1") -> 2)
  "1203" -> (Building.fromString("1") -> 2)
@@ -180,3 +153,20 @@ object Global {
  "C615" -> (Building.fromString("C") -> 6)
  "C616" -> (Building.fromString("C") -> 6)
  */
+//def mainMenu(canLookupNow: Boolean) =
+//  responseTemplate(
+//    (if (canLookupNow) Seq() else Seq()))
+
+//def timeMenu =
+//  responseTemplate((1 to 9).map(_.toString + "교시"))
+
+//def buildingMenu =
+//  responseTemplate(
+//    Seq("1", "2", "3", "C").map(Building.fromString(_).get.name)
+//  )
+
+//def floorMenu(building: Building) =
+//  responseTemplate(
+//    building.availableFloor.map(_.toString + " 층").toSeq
+//  )
+
