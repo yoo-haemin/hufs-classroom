@@ -14,7 +14,9 @@ object Global {
   )
 
   def responseTemplate(message: String, buttons: Seq[String]) = Json.obj(
-    "message" -> message,
+    "message" -> Map(
+      "text" -> message
+    ),
     "keyboard" -> keyboardTemplate(buttons)
   )
 }
