@@ -69,10 +69,10 @@ class HomeController @Inject()(
                       Messages.selections(u.dow.get, u.startTime.get, u.endTime.get, u.building) +
                         (roomSeq.distinct.groupBy(_.building) match {
                            case s if s.size > 0 =>
-                             s.foldLeft("") { case (acc, (b, r)) =>
+                             (s.foldLeft("") { case (acc, (b, r)) =>
                                acc + b.name + ":\n" +
                                  r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
-                             }
+                             }).dropRight(2) //Trim the ending lines
                            case _ => "아쉽지만 조건에 맞는 강의실이 없습니다. 선택을 바꿔보세요~"
                          })
                     }
