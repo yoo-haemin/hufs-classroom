@@ -26,7 +26,8 @@ object Step {
 
     override def process(user: User, request: String): Either[String, User] = request match {
       case Messages.timeFirst =>
-        Right(user.copy(step = DecideNowStep))
+        if (nowIsApplicable()) Right(user.copy(step = DecideNowStep))
+        else Right(user.copy(step = DOWStep))
       case Messages.buildingFirst =>
         Right(user.copy(step = BuildingSelectionStep))
       case _ =>
