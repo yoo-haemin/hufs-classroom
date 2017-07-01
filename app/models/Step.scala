@@ -13,7 +13,6 @@ sealed abstract class Step {
 }
 
 object Step {
-  import shared.Messages._
 
   private def errorMessage(step: Step, message: String) =
     s"Unrecognized message in $step: $message"
@@ -22,7 +21,7 @@ object Step {
     override def toString = "MainMenuStep"
 
     override def buttons =
-      Seq(timeFirst, buildingFirst, aboutButton)
+      Seq(Messages.timeFirst, Messages.buildingFirst, Messages.aboutButton)
 
     override def process(user: User, request: String): Either[String, User] = request match {
       case Messages.timeFirst =>
@@ -34,9 +33,7 @@ object Step {
         Left(errorMessage(user.step, request))
     }
 
-    override def message = """** 현재 본 서비스는 베타 버전입니다. 틀린 정보가 있으니 주의해 주세요 **
-
-한국외대 서울캠 빈 강의실 찾기!! 학교 강의시간표를 기준으로 빈 강의실을 찾아줍니다.
+    override def message = """한국외대 서울캠 빈 강의실 찾기!! 학교 강의시간표를 기준으로 빈 강의실을 찾아줍니다.
 현재 시간표는 2017년 여름계절학기 기준입니다.
 강의가 없다고 해서 강의실이 항상 사용가능한 것은 아니라는 거 주의해주세요~""" +
       (if(nowIsApplicable()) """
@@ -49,7 +46,7 @@ object Step {
     override def toString = "DecideNowStep"
 
     override def buttons =
-      Seq(now, setStartTime)
+      Seq(Messages.now, Messages.setStartTime)
 
     override def process(user: User, request: String) = request match {
       case Messages.now =>
@@ -72,19 +69,18 @@ object Step {
   object DOWStep extends Step {
     override def toString = "DOWStep"
 
-    override def buttons = (1 to 5).map(i => dowMsg(DayOfWeek.of(i)))
+    override def buttons = (1 to 5).map(i => Messages.dowMsg(DayOfWeek.of(i)))
 
-    //TODO can be made cleaner
     override def process(user: User, request: String) = request match {
-      case s if s == dowMsg(DayOfWeek.of(1)) =>
+      case s if s == Messages.dowMsg(DayOfWeek.of(1)) =>
         Right(user.copy(dow = Some(DayOfWeek.of(1)), step = StartTimeStep))
-      case s if s == dowMsg(DayOfWeek.of(2)) =>
+      case s if s == Messages.dowMsg(DayOfWeek.of(2)) =>
         Right(user.copy(dow = Some(DayOfWeek.of(2)), step = StartTimeStep))
-      case s if s == dowMsg(DayOfWeek.of(3)) =>
+      case s if s == Messages.dowMsg(DayOfWeek.of(3)) =>
         Right(user.copy(dow = Some(DayOfWeek.of(3)), step = StartTimeStep))
-      case s if s == dowMsg(DayOfWeek.of(4)) =>
+      case s if s == Messages.dowMsg(DayOfWeek.of(4)) =>
         Right(user.copy(dow = Some(DayOfWeek.of(4)), step = StartTimeStep))
-      case s if s == dowMsg(DayOfWeek.of(5)) =>
+      case s if s == Messages.dowMsg(DayOfWeek.of(5)) =>
         Right(user.copy(dow = Some(DayOfWeek.of(5)), step = StartTimeStep))
       case _ =>
         Left(errorMessage(user.step, request))
@@ -155,7 +151,7 @@ object Step {
 
   object ExecuteStep extends Step {
     override def toString = "ExecuteStep"
-    override def buttons = Seq(finish, changeBuilding, changeStartDow, changeStartTime, changeEndTime)
+    override def buttons = Seq(Messages.toMainMenu, Messages.changeBuilding, Messages.changeStartDow, Messages.changeStartTime, Messages.changeEndTime)
     override def process(user: User, request: String) = request match {
       case Messages.changeStartDow =>
         Right(user.copy(step = DOWStep))
@@ -169,14 +165,13 @@ object Step {
       case Messages.changeBuilding =>
         Right(user.copy(step = BuildingSelectionStep))
 
-      case Messages.finish =>
+      case Messages.toMainMenu =>
         Right(user.copy(step = MainMenuStep))
 
       case _ =>
         Left(errorMessage(user.step, request))
     }
 
-    //TODO What to do with this??
-    override def message = ???
+    override def message = "이걸 보고 계시다면, 서비스에 이상이 있는 겁니다. 제작자에게 어떻게 해서 이걸 보게 되었는지 알려주세요~!"
   }
 }

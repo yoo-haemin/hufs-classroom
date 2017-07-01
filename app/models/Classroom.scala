@@ -9,7 +9,7 @@ case class Classroom(building: Building, room: String, freeTime: Map[DayOfWeek, 
 }
 
 object Classroom {
-  def getBuildingRoom(room: String): (Building, String) = room match {
+  private def getBuildingRoom(room: String): (Building, String) = room match {
     case s if s.length > 4 && Building.fromString(s.take(2)).isDefined =>
       Building.fromString(s.take(2)).get -> s.drop(2)
     case s => Building.fromString(s.head.toString).get -> s.tail

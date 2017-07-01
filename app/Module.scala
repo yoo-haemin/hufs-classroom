@@ -17,8 +17,9 @@ class Module(environment: Environment, configuration: Configuration)
 
   override def configure() = {
     bind[UserDAO].to[UserDAOImpl]
-    bind[UserService].to[UserServiceImpl]
     bind[ClassroomDAO].to[ClassroomDAOImpl]
+
+    bind[UserService].to[UserServiceImpl]
     bind[ClassroomService].to[ClassroomServiceImpl]
 
     bind[Startup].asEagerSingleton()

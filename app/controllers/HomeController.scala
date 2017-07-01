@@ -4,12 +4,12 @@ import javax.inject.Inject
 
 import play.api.mvc._
 import play.api.libs.json._
-import java.time.{ZonedDateTime, ZoneId}
+import java.time.{ ZonedDateTime, ZoneId }
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{RequestApi, Step}
+import models.{ RequestApi, Step }
 import models.Step._
 import models.services.{ UserService, ClassroomService }
 
@@ -20,25 +20,20 @@ import shared.Messages
   * Main Controller
   */
 class HomeController @Inject()(
-  cc: ControllerComponents, playBodyParsers: PlayBodyParsers, userService: UserService, classroomService: ClassroomService) extends AbstractController(cc) {
+  cc: ControllerComponents, playBodyParsers: PlayBodyParsers,
+  userService: UserService, classroomService: ClassroomService) extends AbstractController(cc) {
 
   def keyboard = Action { implicit req =>
-    val now = ZonedDateTime.now(ZoneId.of(ZONEID))
-    val nowHour = now.getHour()
-    val nowDow = now.getDayOfWeek()
-    val canLookupNow = nowHour >= 9 && nowHour < 17 && nowDow.getValue >= 1 && nowDow.getValue <= 5
-
     Ok(keyboardTemplate(Step.MainMenuStep.buttons))
   }
 
   def message = Action.async(playBodyParsers.json) { implicit req =>
     req.body.validate[RequestApi].fold(
-      error => {
-        Future.successful(ServiceUnavailable(Json.obj("code" -> 100)))
-      },
+      { error =>
+        Future.successful(ServiceUnavailable(Json.obj("code" -> 100))) },
       { case RequestApi(userKey, messageType, content) =>
         //Can't accept that message
-        if (messageType != "text")for {
+        if (messageType != "text") for {
           user <- userService.findByKey(userKey)
         } yield Ok(responseTemplate(Messages.cantAccept, user.step.buttons))
 
@@ -65,15 +60,14 @@ class HomeController @Inject()(
                   //Fetch data and add to message
                   classroomService.find(u.dow.get, u.startTime.get, u.endTime.get, u.building)
                     .map { roomSeq =>
-
                       Messages.selections(u.dow.get, u.startTime.get, u.endTime.get, u.building) +
                         (roomSeq.distinct.groupBy(_.building) match {
                            case s if s.size > 0 =>
                              (s.foldLeft("") { case (acc, (b, r)) =>
-                               acc + b.name + ":\n" +
-                                 r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
-                             }).dropRight(2) //Trim the ending lines
-                           case _ => "아쉽지만 조건에 맞는 강의실이 없습니다. 선택을 바꿔보세요~"
+                                acc + b.name + ":\n" +
+                                  r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
+                              }).dropRight(2) //Trim the ending lines
+                           case _ => Messages.noMatch
                          })
                     }
                 case s =>
@@ -91,23 +85,18 @@ class HomeController @Inject()(
               case EndTimeStep =>
                 val buttons = EndTimeStep.buttonsWithStart(u.startTime.get)
                 if (buttons.length > 0) Right(buttons)
-                else Left("선택할 수 있는 시간이 없습니다")
-
+                else Left(Messages.noSelectableTimeError)
               case s: Step => Right(s.buttons)
-              case _ => Left("Undefined Step while deciding button")
             }
           }
-
-        } yield (for {
-                   u <- newUserEither.right
-                   msg <- msgEither.right
-                   btn <- btnEither.right
-                 } yield (u, msg, btn))
+        } yield (
+          for {
+            msg <- msgEither.right
+            btn <- btnEither.right
+          } yield (msg, btn))
           .fold(
-            { err =>
-              Ok(responseTemplate(err, MainMenuStep.buttons)) },
-            { case (u, msg, btn) =>
-              Ok(responseTemplate(msg, btn)) }
+            { err => Ok(responseTemplate(Messages.defaultError, MainMenuStep.buttons)) },
+            { case (msg, btn) => Ok(responseTemplate(msg, btn)) }
           )
       }
     )

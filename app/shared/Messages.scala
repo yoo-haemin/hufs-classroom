@@ -39,8 +39,14 @@ object Messages {
   val changeEndTime = "끝시간 바꾸기"
   val changeBuilding = "건물 바꾸기"
   val finish = "끝내기"
+  val toMainMenu = "처음으로"
 
   val cantAccept = "저는 지정된 메세지 이외의 것은 못 받아요 ㅠㅠ 다시 선택해주세요!"
+  val noMatch = "아쉽지만 조건에 맞는 강의실이 없습니다. 선택을 바꿔보세요~"
+
+  val noSelectableTimeError = "선택할 수 있는 시간이 없습니다"
+
+  val defaultError = "너무 빨리 누르시면 저는 바보가 됩니다... 죄송하지만 처음부터 다시 해주세요 ㅠㅠ"
 
   def selections(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]) =
     dowMsg(dow) + " " + startTime + "시부터 " + endTime + "시까지" + building.fold("를")(b => s" ${b.name}에 있는 강의실을") + " 기준으로 검색한 결과:\n"

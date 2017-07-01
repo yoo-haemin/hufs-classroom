@@ -7,6 +7,7 @@ import java.time.DayOfWeek
 import models.{ User, Classroom }
 import models.services._
 import models.daos._
+import shared.Global
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,61 +21,57 @@ import play.api.libs.functional.syntax._
   * Startup: Reads JSON and creates DB
   */
 @Singleton
-class Startup @Inject() (userService: UserService, classroomService: ClassroomService, classroomDAO: ClassroomDAO) {
+class Startup @Inject() (
+  userService: UserService, classroomService: ClassroomService, classroomDAO: ClassroomDAO) {
   import scala.io.Source
 
-  case class JsonClassroom(room: String, time: Seq[(DayOfWeek, Seq[Int])])
+  case class OccupiedClassroom(room: String, dow: DayOfWeek, time: Int)
 
-  implicit val dowReads: Reads[DayOfWeek] = (
-    (__).read[String]
-  ).map(s =>
-    s match {
-      case "Mon" => DayOfWeek.MONDAY
-      case "Tue" => DayOfWeek.TUESDAY
-      case "Wed" => DayOfWeek.WEDNESDAY
-      case "Thu" => DayOfWeek.THURSDAY
-      case "Fri" => DayOfWeek.FRIDAY
-      case _ => throw new NoSuchElementException
-    })
+  case class CourseTime(time: Seq[Int], room: String)
 
-  implicit val pairReads: Reads[(DayOfWeek, Seq[Int])] = (
-    (__ \ "dayOfWeek").read[DayOfWeek] and
-      (__ \ "time").read[Seq[Int]]
-  )(_ -> _)
+  implicit val courseTimeReads = (
+    (__ \ "time").read[Seq[Int]] and
+      (__ \ "class").read[String]
+  )(CourseTime)
 
-  implicit val classroomReads: Reads[JsonClassroom] = (
-    (JsPath \ "room").read[String] and
-      (JsPath \ "time").read[Seq[(DayOfWeek, Seq[Int])]]
-  )(JsonClassroom.apply _)
+  implicit val courseTimeMapReads: Reads[Map[DayOfWeek, CourseTime]] =
+    new Reads[Map[DayOfWeek, CourseTime]] {
+      def reads(json: JsValue): JsResult[Map[DayOfWeek, CourseTime]] = {
+        JsSuccess(
+          Map(
+            DayOfWeek.MONDAY    -> (json \ "courseTime" \ "Mon").asOpt[CourseTime],
+            DayOfWeek.TUESDAY   -> (json \ "courseTime" \ "Tue").asOpt[CourseTime],
+            DayOfWeek.WEDNESDAY -> (json \ "courseTime" \ "Wed").asOpt[CourseTime],
+            DayOfWeek.THURSDAY  -> (json \ "courseTime" \ "Thu").asOpt[CourseTime],
+            DayOfWeek.FRIDAY    -> (json \ "courseTime" \ "Fri").asOpt[CourseTime],
+            DayOfWeek.SATURDAY  -> (json \ "courseTime" \ "Sat").asOpt[CourseTime],
+            DayOfWeek.SUNDAY    -> (json \ "courseTime" \ "Sun").asOpt[CourseTime]
+          )
+            .filter(p => p._2.isDefined)
+            .map { case (k, v) => k -> v.get })
+      }
+    }
 
-  implicit val classroomSeqReds: Reads[Seq[JsonClassroom]] = (
-    (__).read[Seq[JsonClassroom]]
-  )
-  //assets/json/data.json
-  val sourceUrl = """https://gist.githubusercontent.com/yoo-haemin/813ef5b8e3a6dc418587687770707814/raw/884d33b836a0b691eda53e07a6af65ed5cc5af0e/2017-02.json"""
+  implicit val courseTimeMapSeqReads = __.read[Seq[Map[DayOfWeek, CourseTime]]]
+
+  val sourceUrl = """https://gist.githubusercontent.com/yoo-haemin/a8b8914e41e1e575eba317e31aa3df5b/raw/576cb22400513c81c10dd85101b1626ac28c45f0/2012-02-flat.json"""
+
   val source = Source.fromURL(sourceUrl, "UTF-8").getLines().reduceLeft(_+_)
 
-  val json = Json.parse(source).as[List[JsonClassroom]]
+  val jsonData = Json.parse(source).as[Seq[Map[DayOfWeek, CourseTime]]].flatten
 
-  val classroomList = ("1202" :: "1203" :: "1204" :: "1205" :: "1206" :: "1207" :: "1208" :: Nil) ++
-    ("1210" :: "1211" :: "1301" :: "1302" :: "1303" :: "1304" :: "1305" :: "1306" :: "1307" :: Nil) ++
-    ("1308" :: "1309" :: "1310" :: "1311" :: "1401" :: "1402" :: "1403" :: "1404" :: "1405" :: Nil) ++
-    ("1406" :: "1407" :: "1408" :: "1409" :: "1501" :: "1502" :: "1503" :: "1504" :: "1505" :: Nil) ++
-    ("1506" :: "1507" :: "1508" :: "1509" :: "1601" :: "1602" :: "1603" :: "1604" :: "1605" :: Nil) ++
-    ("1606" :: "1607" :: "1608" :: "1609" :: "2201" :: "2202" :: "2203" :: "2204" :: "2205" :: Nil) ++
-    ("2207" :: "2208" :: "2210" :: "2401" :: "2402" :: "2403" :: "2404" :: "2405" :: "2407" :: Nil) ++
-    ("2408" :: "2409" :: "2501" :: "2502" :: "2503" :: "2504" :: "2506" :: "2507" :: "2508" :: Nil) ++
-    ("2509" :: "3201" :: "3203" :: "3205" :: "3206" :: "3301" :: "3302" :: "3303" :: "3304" :: Nil) ++
-    ("3305" :: "3306" :: "3307" :: "3308" :: "3401" :: "3402" :: "3403" :: "3404" :: "3405" :: Nil) ++
-    ("3406" :: "3407" :: "3408" :: "3409" :: "3501" :: "3502" :: "3503" :: "3504" :: "3505" :: Nil) ++
-    ("3506" :: "3507" :: "3508" :: "3509" :: "C301" :: "C302" :: "C304" :: "C305" :: "C306" :: Nil) ++
-    ("C307" :: "C308" :: "C309" :: "C310" :: "C311" :: "C401" :: "C402" :: "C405" :: "C406" :: Nil) ++
-    ("C407" :: "C408" :: "C409" :: "C410" :: "C411" :: "C412" :: "C413" :: "C501" :: "C509" :: Nil) ++
-    ("C510" :: "C513" :: "C514" :: "C515" :: "C606" :: "C614" :: "C615" :: "C616" :: Nil) ++
-    ("0109" :: "0115" :: "0116" :: "0117" :: "0118" :: "0221" :: "0225" :: "0328" :: "0329" :: "0330" :: "0338" :: Nil)
+  val occupied = jsonData
+    .flatMap { case (dow, CourseTime(time, room)) => time map { t => OccupiedClassroom(room, dow, t) } }
+    .groupBy { case OccupiedClassroom(room, dow, time) => room }
+    .map { case (room, xs) =>
+      room -> xs
+        .groupBy { case OccupiedClassroom(_, dow, _) => dow}
+        .map { case (dow, ys) => dow -> ys.map { case OccupiedClassroom(_, _, t) => t + 8 } }
+        .toMap
+    }
 
-  val classrooms = classroomList.map { room =>
-    val fullTime = (9 to 16)
+  val classrooms = Global.classroomList.map { room =>
+    val fullTime = (Global.baseStartTime until Global.baseEndTime)
     val fullMap = Map(
       DayOfWeek.MONDAY -> fullTime,
       DayOfWeek.TUESDAY -> fullTime,
@@ -82,16 +79,19 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
       DayOfWeek.THURSDAY -> fullTime,
       DayOfWeek.FRIDAY -> fullTime
     )
-    json.map(jsc => JsonClassroom(jsc.room, jsc.time.map(p => p._1 -> p._2.map(_ + 8))))
-      .find(_.room == room) match {
-      case Some(jsonRoom) => Classroom.fromRoomTime(room, jsonRoom.time.toMap.map(p => p._1 -> p._2.sorted))
-      case None => Classroom.fromRoomTime(room, fullMap)
-    }
+    val occupiedStatus = occupied.get(room)
+      .fold(fullMap.asInstanceOf[Map[DayOfWeek,Seq[Int]]]) { timeMap =>
+        fullMap.map { case (dow, _) =>
+          timeMap.get(dow) match {
+            case Some(times) => dow -> (fullTime.toSet -- times.toSet).toSeq.sorted
+            case None => dow -> fullTime.sorted
+          }
+        }
+      }
+    Classroom.fromRoomTime(room, occupiedStatus)
   }
 
   classrooms.tail.foldLeft(classroomService.add(classrooms.head)) { (acc, v) =>
     acc flatMap (_ => classroomService.add(v))
-  } flatMap { _ =>
-    Future.successful(println(ClassroomDAOImpl.data))
   }
 }
