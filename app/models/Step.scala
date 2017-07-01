@@ -33,7 +33,7 @@ object Step {
         Left(errorMessage(user.step, request))
     }
 
-    override def message = "먼저 "
+    override def message = "한국외대 서울캠 빈강의실 찾기!! 어떤거를 선택하실 건가요?"
   }
 
   object DecideNowStep extends Step {
@@ -56,6 +56,8 @@ object Step {
         Left(errorMessage(user.step, request))
 
     }
+
+    override def message = "시작시간은 어떻게 할까요?"
   }
 
   object DOWStep extends Step {
@@ -78,6 +80,8 @@ object Step {
       case _ =>
         Left(errorMessage(user.step, request))
     }
+
+    override def message = "요일을 정해주세요"
   }
 
   object StartTimeStep extends Step {
@@ -95,6 +99,8 @@ object Step {
 
       case _ => Left(errorMessage(user.step, request))
     }
+
+    override def message = "시작시간을 정해주세요"
   }
 
   object EndTimeStep extends Step {
@@ -114,6 +120,8 @@ object Step {
 
       case _ => Left(errorMessage(user.step, request))
     }
+
+    override def message = "끝나는 시간을 정해주세요"
   }
 
   object BuildingSelectionStep extends Step {
@@ -130,6 +138,8 @@ object Step {
       case None =>
         Left(errorMessage(user.step, request))
     }
+
+    override def message = "건물을 정해주세요"
   }
 
   object ExecuteStep extends Step {

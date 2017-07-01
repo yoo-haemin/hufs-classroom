@@ -63,7 +63,7 @@ class HomeController @Inject()(
                                 r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
                             }
 
-                          case _ => "아쉽지만 조건에 맞는 강의실이 없습니다. 다른 조건으로 시도해보세요~"
+                          case _ => "아쉽지만 조건에 맞는 강의실이 없습니다. 선택을 바꿔보세요~"
                         }
                     }
                 case s =>
