@@ -66,7 +66,7 @@ class HomeController @Inject()(
                              (s.foldLeft("") { case (acc, (b, r)) =>
                                 acc + b.name + ":\n" +
                                   r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
-                              }).dropRight(2) //Trim the ending lines
+                              }).dropRight(3) //Trim the ending lines
                            case _ => Messages.noMatch
                          })
                     }
