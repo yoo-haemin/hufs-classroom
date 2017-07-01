@@ -145,7 +145,7 @@ object Step {
 
   object ExecuteStep extends Step {
     override def toString = "ExecuteStep"
-    override def buttons = Seq(changeStartDow, changeStartTime, changeEndTime, changeBuilding, finish)
+    override def buttons = Seq(changeBuilding, changeStartDow, changeStartTime, changeEndTime, finish)
     override def process(user: User, request: String) = request match {
       case Messages.changeStartDow =>
         Right(user.copy(step = DOWStep))
@@ -164,7 +164,6 @@ object Step {
 
       case _ =>
         Left(errorMessage(user.step, request))
-
     }
 
     override def message = ???
