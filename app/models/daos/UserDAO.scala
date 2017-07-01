@@ -14,6 +14,8 @@ trait UserDAO {
 
   def clearStatus(userKey: String): Future[User]
 
+  def update(user: User): Future[User]
+
   def updateBuilding(userKey: String, building: Building): Future[User]
 
   def updateStep(userKey: String, step: Step): Future[User]

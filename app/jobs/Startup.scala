@@ -88,6 +88,8 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
   }
 
   classrooms.tail.foldLeft(classroomService.add(classrooms.head)) { (acc, v) =>
-    acc flatMap (classroomService.add(_))
+    acc flatMap (_ => classroomService.add(v))
+  } flatMap { _ =>
+    Future.successful(println(ClassroomDAOImpl.data))
   }
 }

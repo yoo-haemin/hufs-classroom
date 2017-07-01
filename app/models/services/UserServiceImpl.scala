@@ -18,6 +18,9 @@ class UserServiceImpl @Inject()(userDAO: UserDAO) extends UserService {
 
   def clearStatus(userKey: String): Future[User] = userDAO.clearStatus(userKey)
 
+  def update(user: User): Future[User] =
+    userDAO.update(user)
+
   def updateBuilding(userKey: String, building: Building): Future[User] =
     userDAO.updateBuilding(userKey, building)
 
