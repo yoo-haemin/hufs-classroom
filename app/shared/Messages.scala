@@ -2,11 +2,20 @@ package shared
 
 import java.time.DayOfWeek
 import java.time.DayOfWeek._
+import models.Step.MainMenuStep
+import models.Building
 
 object Messages {
 
   val timeFirst = "시간 먼저"
   val buildingFirst = "건물 먼저"
+  val aboutButton = "이 서비스는?"
+  val about = MainMenuStep.message + """뭔가가 잘못되어있다! 혹은 이런 기능은 좋겠다~~ 이런건 haemin@posteo.net으로 부탁드려요.
+
+아쉽지만, 본 서비스가 항상 옳은 정보를 제공한다는 것은 불가능합니다. 본 서비스의 이용으로 인한 피해에 대해 서비스 제작자는 책임지지 않습니다. 다리가 너무너무 아프면 미안합니다.
+
+한국외대 서울캠 빈강의실 찾기는 GNU AGPL3 라이선스로 배포되는 자유 소프트웨어입니다.
+본 프로그램의 소스코드는 https://github.com/yoo-haemin/hufs-classroom 에 있습니다."""
 
   val now = "지금부터"
   val setStartTime = "시작시간 설정"
@@ -28,4 +37,7 @@ object Messages {
   val changeEndTime = "끝시간 바꾸기"
   val changeBuilding = "건물 바꾸기"
   val finish = "끝내기"
+
+  def selections(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]) =
+    dowMsg(dow) + " " + startTime + "시부터 " + endTime + "시까지" + building.fold("를")(b => s" ${b.name}에 있는 강의실을") + " 기준으로 검색한 결과:\n"
 }

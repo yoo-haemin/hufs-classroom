@@ -1,6 +1,7 @@
 package jobs
 
 import javax.inject.{Inject, Singleton}
+import java.nio.charset.Charset
 
 import java.time.DayOfWeek
 import models.{ User, Classroom }
@@ -49,8 +50,9 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
   implicit val classroomSeqReds: Reads[Seq[JsonClassroom]] = (
     (__).read[Seq[JsonClassroom]]
   )
-
-  val source = Source.fromFile("assets/json/data.json").getLines().reduceLeft(_+_)
+  //assets/json/data.json
+  val sourceUrl = """https://gist.githubusercontent.com/yoo-haemin/813ef5b8e3a6dc418587687770707814/raw/884d33b836a0b691eda53e07a6af65ed5cc5af0e/2017-02.json"""
+  val source = Source.fromURL(sourceUrl, "UTF-8").getLines().reduceLeft(_+_)
 
   val json = Json.parse(source).as[List[JsonClassroom]]
 

@@ -22,7 +22,7 @@ object Step {
     override def toString = "MainMenuStep"
 
     override def buttons =
-      Seq(timeFirst, buildingFirst)
+      Seq(timeFirst, buildingFirst, aboutButton)
 
     override def process(user: User, request: String): Either[String, User] = request match {
       case Messages.timeFirst =>
@@ -34,7 +34,10 @@ object Step {
         Left(errorMessage(user.step, request))
     }
 
-    override def message = "한국외대 서울캠 빈강의실 찾기!! 어떤거를 선택하실 건가요?"
+    override def message = """한국외대 서울캠 빈강의실 찾기!! 학교 강의시간표를 기준으로 빈 강의실을 찾아줍니다.
+현재 시간표는 2016년 여름계절학기 기준입니다.
+강의가 없다고 해서 강의실이 항상 사용가능한 것은 아니라는 거 주의해주세요~
+지금 기준으로 시간 찾기 기능은 평일 9시부터 17시 전까지만 사용 가능합니다."""
   }
 
   object DecideNowStep extends Step {
@@ -134,7 +137,9 @@ object Step {
       case Some(building) =>
         user.endTime match {
           case Some(t) => Right(user.copy(step = ExecuteStep, building = Some(building)))
-          case None => Right(user.copy(step = DecideNowStep))
+          case None =>
+            if (nowIsApplicable()) Right(user.copy(step = DecideNowStep, building = Some(building)))
+            else Right(user.copy(step = DOWStep, building = Some(building)))
         }
       case None =>
         Left(errorMessage(user.step, request))
@@ -145,7 +150,7 @@ object Step {
 
   object ExecuteStep extends Step {
     override def toString = "ExecuteStep"
-    override def buttons = Seq(changeBuilding, changeStartDow, changeStartTime, changeEndTime, finish)
+    override def buttons = Seq(finish, changeBuilding, changeStartDow, changeStartTime, changeEndTime)
     override def process(user: User, request: String) = request match {
       case Messages.changeStartDow =>
         Right(user.copy(step = DOWStep))
@@ -166,6 +171,7 @@ object Step {
         Left(errorMessage(user.step, request))
     }
 
+    //TODO What to do with this??
     override def message = ???
   }
 }
