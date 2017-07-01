@@ -37,11 +37,10 @@ class HomeController @Inject()(
         Future.successful(ServiceUnavailable(Json.obj("code" -> 100)))
       },
       { case RequestApi(userKey, messageType, content) =>
-        if (messageType != "text")
-          Future.successful(
-            Ok(responseTemplate(
-                 "저는 지정된 메세지 이외의 것은 못 받아요 ㅠㅠ 다시 선택해주세요!",
-                 MainMenuStep.buttons)))
+        //Can't accept that message
+        if (messageType != "text")for {
+          user <- userService.findByKey(userKey)
+        } yield Ok(responseTemplate(Messages.cantAccept, user.step.buttons))
 
         //About Menu
         else if (content == Messages.aboutButton) for {
