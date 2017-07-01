@@ -39,6 +39,7 @@ class HomeController @Inject()(
         if (messageType != "text") Future.successful(BadRequest(Json.obj("code" -> 100)))
         else for {
           nextStep <- queryBuilder.build(userKey, content)
+          _ = println("nextStep: " + nextStep + " req: " + req)
         } yield {
           if (nextStep.isDefined) Ok(nextStep.get) else BadRequest("")
         }

@@ -23,5 +23,6 @@ class Module(environment: Environment, configuration: Configuration)
 
     bind[Startup].asEagerSingleton()
     bind[QueryBuilder].asEagerSingleton()
+
   }
 }

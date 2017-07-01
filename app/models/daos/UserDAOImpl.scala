@@ -36,21 +36,21 @@ class UserDAOImpl @Inject()() extends UserDAO {
 
   def updateBuilding(userKey: String, building: Building): Future[User] =
     Future.successful {
-      val user = UserDAOImpl.data.filter(_.userKey == userKey).head.copy(building = Some(building))
+      val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, building = Some(building)))(_.copy(building = Some(building)))
       UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == userKey) + user
       user
     }
 
   def updateStep(userKey: String, step: Step): Future[User] =
     Future.successful {
-      val user = UserDAOImpl.data.filter(_.userKey == userKey).head.copy(step = step)
+      val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, step = step))(_.copy(step = step))
       UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == userKey) + user
       user
     }
 
   def updateStartTime(userKey: String, startTime: Int): Future[User] =
     Future.successful {
-      val user = UserDAOImpl.data.filter(_.userKey == userKey).head.copy(startTime = Some(startTime))
+      val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, startTime = Some(startTime)))(_.copy(startTime = Some(startTime)))
       UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == userKey) + user
       user
     }
@@ -58,7 +58,7 @@ class UserDAOImpl @Inject()() extends UserDAO {
 
   def updateEndTime(userKey: String, endTime: Int): Future[User] =
     Future.successful {
-      val user = UserDAOImpl.data.filter(_.userKey == userKey).head.copy(endTime = Some(endTime))
+      val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, endTime = Some(endTime)))(_.copy(endTime = Some(endTime)))
       UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == userKey) + user
       user
     }
@@ -66,12 +66,10 @@ class UserDAOImpl @Inject()() extends UserDAO {
 
   def updateDow(userKey: String, dayOfWeek: DayOfWeek): Future[User] =
     Future.successful {
-      val user = UserDAOImpl.data.filter(_.userKey == userKey).head.copy(dow = Some(dayOfWeek))
+      val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, dow = Some(dayOfWeek)))(_.copy(dow = Some(dayOfWeek)))
       UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == userKey) + user
       user
     }
-
-
 
   def size(): Future[Int] = Future(UserDAOImpl.data.size)
 }

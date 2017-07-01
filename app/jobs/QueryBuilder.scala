@@ -19,6 +19,13 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
 
   def build(userKey: String, content: String): Future[Option[JsObject]] = for {
     user @ User(userKey, step, building, dow, startTime, endTime) <- userService.findByKey(userKey)
+    _ = println(user)
+
+    //If the keyboard is reset, clear the status
+    _ <- (if (content == Messages.timeFirst || content == Messages.buildingFirst)
+            userService.clearStatus(userKey)
+          else Future.successful(()))
+
     stepOpt <- nextStep(user, content)
     msg <- stepOpt map {
       s => s match {
@@ -30,7 +37,6 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
                 acc + b.name + ":\n" + r.map(_.room).reduceLeft(_+_) + "\n\n"
               }
             }
-
         case _ =>
           //echo message
           Future(content + " 선택")
@@ -39,7 +45,6 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
       case Some(f) => f.map(Some(_))
       case None => Future.successful(None)
     }
-
     button = stepOpt map {
       _ match {
         case EndTimeStep => EndTimeStep.buttonsWithStart(startTime.get)
@@ -48,14 +53,15 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
       }
     }
 
+
+
   } yield for {
     btnGet <- button
     msgGet <- msg
   } yield responseTemplate(msgGet, btnGet)
 
 
-  //No relation with the OS
-  //Updates user using DAO and returns the next step to be performed
+  //Updates user using userService and returns the next step to be performed
   def nextStep(user: User, content: String): Future[Option[Step]] = user.step match {
     case MainMenuStep =>
       val step = if (content == Messages.timeFirst) Some(StartTimeStep)
@@ -63,8 +69,8 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
                  else None
 
       if (step.isDefined) for {
-        _ <- userService.updateStep(user.userKey, step.get)
         _ <- userService.clearStatus(user.userKey)
+        _ <- userService.updateStep(user.userKey, step.get)
       } yield step
       else Future(None)
 
@@ -76,8 +82,9 @@ class QueryBuilder @Inject() (userService: UserService, classroomService: Classr
           time = ZonedDateTime.now(ZoneId.of(ZONEID))
           dow = time.getDayOfWeek()
           hour = time.getHour()
-          _ <- userService.updateDowStartTime(user.userKey, dow, hour)
-        } yield step
+          _ = println((time, dow, hour))
+          u <- userService.updateDowStartTime(user.userKey, dow, hour)
+        } yield Some(u.step)
       } else if (content == Messages.setStartTime) {
         val step = Some(StartDOWStep)
         for {

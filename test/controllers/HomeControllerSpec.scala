@@ -8,11 +8,10 @@ class HomeControllerSpec extends PlaySpec with GuiceOneAppPerTest {
 
   "HomeController" should {
 
-    "render the index page" in {
-      val request = FakeRequest(GET, "/").withHeaders(HOST -> "localhost:9000").withCSRFToken
-      val home = route(app, request).get
-
-      contentAsString(home) must include ("This is a placeholder page to show you the REST API.")
+    "render the keyboard json" in {
+      val request = FakeRequest(GET, "/keyboard").withHeaders(HOST -> "localhost:9000").withCSRFToken
+      val keyboard = route(app, request).get
+      contentAsString(keyboard) must include ("시간 먼저")
     }
 
   }
