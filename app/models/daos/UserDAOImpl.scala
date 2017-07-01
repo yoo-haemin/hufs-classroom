@@ -34,6 +34,12 @@ class UserDAOImpl @Inject()() extends UserDAO {
       newUser
     }
 
+  def update(user: User): Future[User] =
+    Future.successful {
+      UserDAOImpl.data = UserDAOImpl.data.filterNot(_.userKey == user.userKey) + user
+      user
+    }
+
   def updateBuilding(userKey: String, building: Building): Future[User] =
     Future.successful {
       val user = UserDAOImpl.data.filter(_.userKey == userKey).headOption.fold(User(userKey, building = Some(building)))(_.copy(building = Some(building)))

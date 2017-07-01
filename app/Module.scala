@@ -22,7 +22,5 @@ class Module(environment: Environment, configuration: Configuration)
     bind[ClassroomService].to[ClassroomServiceImpl]
 
     bind[Startup].asEagerSingleton()
-    bind[QueryBuilder].asEagerSingleton()
-
   }
 }
