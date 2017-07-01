@@ -68,8 +68,8 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
     ("3506" :: "3507" :: "3508" :: "3509" :: "C301" :: "C302" :: "C304" :: "C305" :: "C306" :: Nil) ++
     ("C307" :: "C308" :: "C309" :: "C310" :: "C311" :: "C401" :: "C402" :: "C405" :: "C406" :: Nil) ++
     ("C407" :: "C408" :: "C409" :: "C410" :: "C411" :: "C412" :: "C413" :: "C501" :: "C509" :: Nil) ++
-    ("C510" :: "C513" :: "C514" :: "C515" :: "C606" :: "C614" :: "C615" :: "C616" :: Nil)
-
+    ("C510" :: "C513" :: "C514" :: "C515" :: "C606" :: "C614" :: "C615" :: "C616" :: Nil) ++
+    ("0109" :: "0115" :: "0116" :: "0117" :: "0118" :: "0221" :: "0225" :: "0328" :: "0329" :: "0330" :: "0338" :: Nil)
 
   val classrooms = classroomList.map { room =>
     val fullTime = (9 to 16)
@@ -82,7 +82,7 @@ class Startup @Inject() (userService: UserService, classroomService: ClassroomSe
     )
     json.map(jsc => JsonClassroom(jsc.room, jsc.time.map(p => p._1 -> p._2.map(_ + 8))))
       .find(_.room == room) match {
-      case Some(jsonRoom) => Classroom.fromRoomTime(room, jsonRoom.time.toMap)
+      case Some(jsonRoom) => Classroom.fromRoomTime(room, jsonRoom.time.toMap.map(p => p._1 -> p._2.sorted))
       case None => Classroom.fromRoomTime(room, fullMap)
     }
   }

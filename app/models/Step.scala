@@ -9,6 +9,7 @@ import java.time.{ ZonedDateTime, ZoneId, DayOfWeek }
 sealed abstract class Step {
   def buttons: Seq[String]
   def process(user: User, request: String): Either[String,User]
+  def message: String
 }
 
 object Step {
@@ -31,6 +32,8 @@ object Step {
       case _ =>
         Left(errorMessage(user.step, request))
     }
+
+    override def message = "먼저 "
   }
 
   object DecideNowStep extends Step {
@@ -99,7 +102,7 @@ object Step {
 
     override def buttons = buttonsWithStart(10)
 
-    def buttonsWithStart(startTime: Int) = (startTime to 17).map(_.toString + "시까지")
+    def buttonsWithStart(startTime: Int) = (startTime + 1 to 17).map(_.toString + "시까지")
 
     val R = """(\d{2})시까지""".r
 
@@ -116,11 +119,14 @@ object Step {
   object BuildingSelectionStep extends Step {
     override def toString = "BuildingSelectionStep"
 
-    override def buttons = Seq("1", "2", "3", "C").map(Building.fromString(_).get.name)
+    override def buttons = Seq("1", "2", "3", "C", "0").map(Building.fromString(_).get.name)
 
     override def process(user: User, request: String) = Building.fromString(request) match {
       case Some(building) =>
-        Right(user.copy(step = ExecuteStep, building = Some(building)))
+        user.endTime match {
+          case Some(t) => Right(user.copy(step = ExecuteStep, building = Some(building)))
+          case None => Right(user.copy(step = DecideNowStep))
+        }
       case None =>
         Left(errorMessage(user.step, request))
     }
@@ -149,5 +155,7 @@ object Step {
         Left(errorMessage(user.step, request))
 
     }
+
+    override def message = ???
   }
 }

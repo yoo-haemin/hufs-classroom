@@ -13,12 +13,14 @@ import models.daos.ClassroomDAO
 import models._
 
 class ClassroomServiceImpl @Inject()(classroomDAO: ClassroomDAO) extends ClassroomService {
-  def add(classroom: Classroom): Future[Classroom] = classroomDAO.add(classroom)
+  def add(classroom: Classroom): Future[Classroom] =
+    classroomDAO.add(classroom)
 
-  def find(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]): Future[Seq[Classroom]] = building match {
-    case Some(b) =>
-      Future.traverse(startTime to endTime) { t => classroomDAO.getEmptyRooms(dow, t, b) } map { _.flatten }
-    case None =>
-      Future.traverse(startTime to endTime) { t => classroomDAO.getEmptyRooms(dow, t) } map { _.flatten }
-  }
+  def find(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]): Future[Seq[Classroom]] =
+    building match {
+      case Some(b) =>
+        classroomDAO.getEmptyRooms(dow, startTime to endTime, b)
+      case None =>
+        classroomDAO.getEmptyRooms(dow, startTime to endTime)
+    }
 }

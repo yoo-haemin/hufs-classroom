@@ -56,15 +56,19 @@ class HomeController @Inject()(
                   //Fetch data and add to message
                   classroomService.find(u.dow.get, u.startTime.get, u.endTime.get, u.building)
                     .map { roomSeq =>
-                      println(u)
-                      println(roomSeq)
-                      roomSeq.groupBy(_.building).foldLeft("") { case (acc, (b, r)) =>
-                        acc + b.name + ":\n" + r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
-                      }
+                        roomSeq.distinct.groupBy(_.building) match {
+                          case s if s.size > 0 =>
+                            s.foldLeft("") { case (acc, (b, r)) =>
+                              acc + b.name + ":\n" +
+                                r.map(_.room + "호\n").sorted.reduceLeft(_+_) + "\n\n"
+                            }
+
+                          case _ => "아쉽지만 조건에 맞는 강의실이 없습니다. 다른 조건으로 시도해보세요~"
+                        }
                     }
-                case _ =>
-                  //echo request message
-                  Future(content + " 선택")
+                case s =>
+                  //give out predefined message
+                  Future.successful(s.message)
               }
             }
           } match {
@@ -84,10 +88,13 @@ class HomeController @Inject()(
                    u <- newUserEither.right
                    msg <- msgEither.right
                    btn <- btnEither.right
-                 } yield (u, msg, btn)).fold(
-          err => Ok(responseTemplate(err, Seq("시간 먼저", "건물 먼저"))), {
-            case (u, msg, btn) => Ok(responseTemplate(msg, btn))
-          })
+                 } yield (u, msg, btn))
+          .fold(
+            { err =>
+              Ok(responseTemplate(err, Seq("시간 먼저", "건물 먼저"))) },
+            { case (u, msg, btn) =>
+              Ok(responseTemplate(msg, btn)) }
+          )
       }
     )
   }
