@@ -19,8 +19,8 @@ class ClassroomServiceImpl @Inject()(classroomDAO: ClassroomDAO) extends Classro
   def find(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]): Future[Seq[Classroom]] =
     building match {
       case Some(b) =>
-        classroomDAO.getEmptyRooms(dow, startTime to endTime, b)
+        classroomDAO.getEmptyRooms(dow, startTime until endTime, b)
       case None =>
-        classroomDAO.getEmptyRooms(dow, startTime to endTime)
+        classroomDAO.getEmptyRooms(dow, startTime until endTime)
     }
 }

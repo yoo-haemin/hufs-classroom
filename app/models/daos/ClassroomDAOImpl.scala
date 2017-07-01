@@ -23,7 +23,7 @@ class ClassroomDAOImpl @Inject() () extends ClassroomDAO {
         }).toSeq
     }
 
-  def getEmptyRooms(dow: DayOfWeek, time: Seq[Int], building: Building): Future[Seq[Classroom]] = 
+  def getEmptyRooms(dow: DayOfWeek, time: Seq[Int], building: Building): Future[Seq[Classroom]] =
     Future.successful {
       data.filter(r => r.building == building &&
         (r.freeTime.get(dow).map { t => t.containsSlice(time) } match {
