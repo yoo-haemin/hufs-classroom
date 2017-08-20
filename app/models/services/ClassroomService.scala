@@ -1,10 +1,8 @@
 package models.services
 
-import java.util.UUID
 import java.time.DayOfWeek
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 import models._
 

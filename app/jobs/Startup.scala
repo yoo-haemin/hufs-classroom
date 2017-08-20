@@ -1,15 +1,13 @@
 package jobs
 
 import javax.inject.{Inject, Singleton}
-import java.nio.charset.Charset
 
 import java.time.DayOfWeek
-import models.{ User, Classroom }
+import models.Classroom
 import models.services._
 import models.daos._
 import shared.Global
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.libs.json._

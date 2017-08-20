@@ -1,12 +1,9 @@
 package models.services
 
-import java.util.UUID
 import java.time.DayOfWeek
 import javax.inject.Inject
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
 import models.daos.ClassroomDAO
 

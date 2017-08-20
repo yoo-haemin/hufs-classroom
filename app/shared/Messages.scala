@@ -32,7 +32,9 @@ object Messages {
   }
 
   val startTimes = (9 to 16).zip((9 to 16).map(_.toString + "시부터"))
-  def endTimes(start: Int) = (start to 17).zip((start to 17).map(_.toString + "시까지"))
+
+  def endTimes(start: Int): IndexedSeq[(Int, String)] =
+    (start to 17).zip((start to 17).map(_.toString + "시까지"))
 
   val changeStartDow = "요일 바꾸기"
   val changeStartTime = "시작시간 바꾸기"
@@ -48,6 +50,6 @@ object Messages {
 
   val defaultError = "너무 빨리 누르시면 저는 바보가 됩니다... 죄송하지만 처음부터 다시 해주세요 ㅠㅠ"
 
-  def selections(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]) =
+  def selections(dow: DayOfWeek, startTime: Int, endTime: Int, building: Option[Building]): String =
     dowMsg(dow) + " " + startTime + "시부터 " + endTime + "시까지" + building.fold("를")(b => s" ${b.name}에 있는 강의실을") + " 기준으로 검색한 결과:\n"
 }

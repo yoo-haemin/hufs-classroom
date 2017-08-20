@@ -1,6 +1,5 @@
 package models.services
 
-import javax.inject.Inject
 import models._
 import java.time.DayOfWeek
 import scala.concurrent.Future

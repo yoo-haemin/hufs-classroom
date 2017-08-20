@@ -1,8 +1,7 @@
 package shared
 
 import play.api.libs.json._
-import models.Building
-import java.time.{ ZonedDateTime, ZoneId, DayOfWeek }
+import java.time.{ ZonedDateTime, ZoneId }
 
 //Constants or constnat builders that are not messages
 object Global {

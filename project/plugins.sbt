@@ -1,6 +1,6 @@
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.0")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.3")
 
-// Scala formatting: "sbt scalafmt"
-// https://olafurpg.github.io/scalafmt
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.3.1")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0")
+
+addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.9.0")

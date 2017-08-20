@@ -21,7 +21,8 @@ object Common extends AutoPlugin {
       "-Xlint",
       "-Yno-adapted-args",
       "-Ywarn-numeric-widen",
-      "-Xfatal-warnings"
+      "-Ywarn-unused:-imports,_"//,
+      //"-Xfatal-warnings"
     ),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     autoAPIMappings := true

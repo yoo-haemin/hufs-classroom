@@ -1,6 +1,6 @@
 import sbt.Keys._
 
-scalaVersion in ThisBuild := "2.11.11"
+scalaVersion in ThisBuild := "2.12.3"
 
 libraryDependencies ++= Seq(
   guice,
@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
 
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0-M3" % Test
 )
+
 
 lazy val root = (project in file("."))
   .enablePlugins(Common, PlayScala)
