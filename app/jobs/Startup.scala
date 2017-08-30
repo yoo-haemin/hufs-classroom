@@ -27,7 +27,7 @@ class Startup @Inject() (config: Configuration, classroomService: ClassroomServi
   private[this] def currentCourseTime() = {
     val jsonSource = Source.fromURL(config.get[String]("source_url"), "UTF-8").getLines.reduceLeft(_+_)
     val courses = Json.parse(jsonSource).as[Seq[Course]]
-    courses.flatMap(t => t.time) //_.time)
+    courses.flatMap(t => t.time)
   }
 
   //Calculate free time from occupied time using global basetime
@@ -37,18 +37,24 @@ class Startup @Inject() (config: Configuration, classroomService: ClassroomServi
 
     (fullMap /: courseTimes) { case (acc, CourseTime(dow, times, _)) =>
       acc ++ acc.get(dow).fold(Map.empty[DayOfWeek, Seq[Int]]) { accTimes =>
-        Map(dow -> accTimes.filterNot(t => times.exists(_ == t)))
+        Map(dow -> accTimes.filterNot(t => times.exists(_ + 8 == t)))
       }
     }
   }
 
-  //update classroom
-  currentCourseTime()
+  //create classroom list
+  val classrooms = currentCourseTime()
     .groupBy(_.room)
     .filter(r => Global.classroomList.exists(_ == r._1))
-    .map { case (room, courseTimes) => Classroom.fromRoomTime(room, freeTime(courseTimes)) }
-    .foreach { case c@Classroom(_, room, _) =>
-      Logger.debug(s"adding $room")
-      classroomService.add(c)
+    .map { case (room, courseTimes) =>
+      val classroom = Classroom.fromRoomTime(room, freeTime(courseTimes))
+      Logger.debug(classroom.toString)
+      classroom
     }
+
+  //update classroom
+  //TODO backend is not thread safe, so we must do it sequentially
+  classrooms.tail.foldLeft(classroomService.add(classrooms.head)) { (acc, v) =>
+    acc flatMap (_ => classroomService.add(v))
+  }
 }

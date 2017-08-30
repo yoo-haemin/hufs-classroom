@@ -137,7 +137,7 @@ object Step {
     override def process(user: User, request: String) = Building.fromString(request) match {
       case Some(building) =>
         user.endTime match {
-          case Some(t) => Right(user.copy(step = ExecuteStep, building = Some(building)))
+          case Some(_) => Right(user.copy(step = ExecuteStep, building = Some(building)))
           case None =>
             if (nowIsApplicable()) Right(user.copy(step = DecideNowStep, building = Some(building)))
             else Right(user.copy(step = DOWStep, building = Some(building)))
