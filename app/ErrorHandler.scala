@@ -11,6 +11,7 @@ import play.core.SourceMapper
 
 import scala.concurrent._
 
+
 /**
   * Provides a stripped down error handler that does not use HTML in error pages, and
   * prints out debugging output.
@@ -55,9 +56,9 @@ class ErrorHandler(environment: Environment,
           Results.Forbidden(message)
         case NOT_FOUND =>
           Results.NotFound(message)
-        case clientError if statusCode >= 400 && statusCode < 500 =>
+        case clientError@_ if statusCode >= 400 && statusCode < 500 =>
           Results.Status(statusCode)
-        case nonClientError =>
+        case nonClientError@_ =>
           val msg =
             s"onClientError invoked with non client error status code $statusCode: $message"
           throw new IllegalArgumentException(msg)

@@ -12,4 +12,6 @@ trait ClassroomDAO {
   def getEmptyRooms(dow: DayOfWeek, time: Seq[Int], building: Building): Future[Seq[Classroom]]
 
   def fullData: Set[Classroom]
+
+  def clear: Future[Unit]
 }

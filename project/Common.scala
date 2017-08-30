@@ -8,7 +8,7 @@ object Common extends AutoPlugin {
 
   override def projectSettings = Seq(
     organization := "fun.lambda",
-    version := "0.9",
+    version := "1.0.0",
     resolvers += Resolver.typesafeRepo("releases"),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= Seq(
@@ -19,9 +19,9 @@ object Common extends AutoPlugin {
       "-feature",
       "-unchecked",
       "-Xlint",
-      "-Yno-adapted-args",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-unused:-imports,_"//,
+      "-Yno-adapted-args" //,
+      //"-Ywarn-numeric-widen",
+      //"-Ywarn-unused:-imports,_"//,
       //"-Xfatal-warnings"
     ),
     scalacOptions in Test ++= Seq("-Yrangepos"),

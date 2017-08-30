@@ -34,8 +34,11 @@ class ClassroomDAOImpl @Inject() () extends ClassroomDAO {
 
   def fullData = data
 
+  def clear(): Future[Unit] =
+    Future.successful(data = Set.empty[Classroom])
+
 }
 
 object ClassroomDAOImpl {
-  var data = Set[Classroom]()
+  var data = Set.empty[Classroom]
 }

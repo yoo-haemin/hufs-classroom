@@ -10,6 +10,9 @@ import models.daos.ClassroomDAO
 import models._
 
 class ClassroomServiceImpl @Inject()(classroomDAO: ClassroomDAO) extends ClassroomService {
+  def clear(): Future[Unit] =
+    classroomDAO.clear
+
   def add(classroom: Classroom): Future[Classroom] =
     classroomDAO.add(classroom)
 

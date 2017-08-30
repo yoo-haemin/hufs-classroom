@@ -3,8 +3,8 @@ package models
 import java.time.DayOfWeek
 
 //Full room number: Building.toString + room
-//Floor is duplicate data, for indexing convenience
 case class Classroom(building: Building, room: String, freeTime: Map[DayOfWeek, Seq[Int]]) {
+  //TODO Needs fix with classroom over 10th floor
   def floor = room.take(1).toInt
 }
 
