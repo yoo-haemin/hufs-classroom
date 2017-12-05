@@ -3,16 +3,18 @@ package com.yoohaemin.hufs_classroom
 import cats.effect._
 import org.http4s._
 import org.http4s.dsl.io._
+import services._
+import cats.syntax.monad._
 
 object Controllers {
   val keyboard = HttpService[IO] {
     case GET -> Root =>
-      Ok(???)
+      Ok()
   }
 
   val friend = HttpService[IO] {
     case GET -> Root / userKey =>
-      Ok(???)
+      ClassroomService.add(userKey) flatMap { _ => NoContent() }
     case DELETE -> Root / userKey =>
       Ok(???)
   }

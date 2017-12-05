@@ -5,18 +5,24 @@ import cats.effect.IO
 import doobie.implicits._
 
 object FriendService {
-  def add(friend: Friend): IO[Boolean] =
-    sql"""
-      INSERT INTO friends      
-      VALUES $friend;
-    """
-      .query[Boolean]
+  def add(key: String): IO[Unit] =
+    IO {
+      Friend(key)
+    } flatMap { f =>
+     sql"""
+       INSERT INTO friends IF NOT EXISTS
+       VALUES $f;
+     """
+      .query[Unit]
       .unique
       .transact(xa)
+    }
+
     
   def remove(friend: Friend): IO[Unit] = 
     sql"""
-      
+      DELETE FROM friends
+      WHERE id = ${friend.id};
     """
       .query[Unit]
       .unique
