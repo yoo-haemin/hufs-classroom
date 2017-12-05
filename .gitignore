@@ -18,3 +18,7 @@ server.pid
 .ensime
 .ensime_cache/
 .cache-main
+
+.classpath
+.project
+.settings/
