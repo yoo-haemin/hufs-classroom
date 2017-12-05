@@ -1,6 +1,6 @@
 package com.yoohaemin.hufs_classroom.models.kakao_api
 
-import com.yoohaemin.hufs_classroom.models.kakao_api.ResponseMessage.{MessageButton, Photo}
+import ResponseMessage.{MessageButton, Photo}
 import org.http4s.Uri
 
 case class ResponseMessage private(text: Option[String], second: Option[Photo], third: Option[MessageButton]) {

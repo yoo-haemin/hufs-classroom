@@ -1,10 +1,15 @@
 package com.yoohaemin.hufs_classroom
 
 import com.yoohaemin.hufs_classroom.models.kakao_api.{Buttons, Keyboard, ResponseMessage, Text}
-import io.circe._
-//import io.circe.syntax._
+import doobie._
+import cats.effect.IO
 
 package object services {
+  val xa = Transactor.fromDriverManager[IO](
+    "org.sqlite.jdbc", "jdbc:sqlite:hufs_classroom.db"
+  )
+  import io.circe._
+
   implicit val keyboardEncoder = new Encoder[Keyboard] {
     override final def apply(kbd: Keyboard): Json = kbd match {
       case Buttons(b) =>
@@ -18,14 +23,7 @@ package object services {
   }
 
   implicit val responseMessageEncoder = new Encoder[ResponseMessage] {
-    override final def apply(m: ResponseMessage): Json = {
-//      Json.fromValues(
-//
-//      )
-
-      ???
-      //m match { case }
-    }
+    override final def apply(m: ResponseMessage): Json = ???
   }
 }
 

@@ -4,7 +4,7 @@ import cats.effect._
 import org.http4s._
 import org.http4s.dsl.io._
 
-object Services {
+object Controllers {
   val keyboard = HttpService[IO] {
     case GET -> Root =>
       Ok(???)

@@ -4,7 +4,7 @@ import cats.effect.IO
 import fs2.Stream
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.util.{ExitCode, StreamApp}
-import Services._
+import Controllers._
 
 object Main extends StreamApp[IO] {
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
