@@ -1,2 +1,0 @@
-GET        /keyboard               controllers.HomeController.keyboard
-POST       /message                controllers.HomeController.message
