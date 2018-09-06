@@ -1,0 +1,15 @@
+image: nightscape/scala-mill
+
+stages:
+  - compile
+  - test
+
+compile:
+  stage: compile
+  script:
+    - mill service.compile
+
+test:
+  stage: test
+  script:
+    - mill service.test
