@@ -1,4 +1,4 @@
-package com.yoohaemin.hufsclassroom
+package com.yoohaemin.hufsclassroom.user
 
 import com.yoohaemin.hufsclassroom.model._
 import shapeless.tag

@@ -9,6 +9,11 @@ object UserStatus extends Enum[UserStatus] {
 
   val values = findValues
 
-  case object Keyboard extends UserStatus
-
+  case object MainMenuStep extends UserStatus
+  case object DecideNowStep extends UserStatus
+  case object DOWStep extends UserStatus
+  case object StartTimeStep extends UserStatus
+  case object EndTimeStep extends UserStatus
+  case object BuildingSelectionStep extends UserStatus
+  case object ExecuteStep extends UserStatus
 }

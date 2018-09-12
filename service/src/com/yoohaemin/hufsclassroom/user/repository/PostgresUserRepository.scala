@@ -3,7 +3,6 @@ package com.yoohaemin.hufsclassroom.user.repository
 import cats.effect.Async
 import cats.syntax.applicativeError._
 import com.yoohaemin.hufsclassroom.model._
-import com.yoohaemin.hufsclassroom.repository.UserDTO
 import com.yoohaemin.hufsclassroom.user.repository.algebra.UserRepository
 import doobie.free.connection.ConnectionIO
 import doobie.implicits._
