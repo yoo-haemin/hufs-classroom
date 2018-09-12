@@ -1,4 +1,4 @@
-package com.yoohaemin.hufsclassroom.repository
+package com.yoohaemin.hufsclassroom.user.repository
 
 import org.scalacheck._
 import org.scalatest.{FlatSpecLike, Matchers}

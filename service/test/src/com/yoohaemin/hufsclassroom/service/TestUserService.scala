@@ -3,7 +3,7 @@ package com.yoohaemin.hufsclassroom.service
 import cats.effect.IO
 import com.yoohaemin.hufsclassroom.TestUsers.users
 import com.yoohaemin.hufsclassroom.model.UserName
-import com.yoohaemin.hufsclassroom.repository.algebra.UserRepository
+import com.yoohaemin.hufsclassroom.user.repository.algebra.UserRepository
 
 object TestUserService {
 

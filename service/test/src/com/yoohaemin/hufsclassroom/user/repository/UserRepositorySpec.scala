@@ -1,4 +1,4 @@
-package com.yoohaemin.hufsclassroom.repository
+package com.yoohaemin.hufsclassroom.user.repository
 
 import cats.effect.IO
 import com.yoohaemin.hufsclassroom.IOAssertion
